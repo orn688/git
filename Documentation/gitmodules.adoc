@@ -65,7 +65,9 @@ submodule.<name>.fetchRecurseSubmodules::
 
 submodule.<name>.ignore::
 	Defines under what circumstances `git status` and the diff family show
-	a submodule as modified. The following values are supported:
+	a submodule as modified. If `submodule.noAddIgnored` is set to "true",
+	this configuration also applies to `git add`. The following values are
+	supported:
 +
 --
 	all;; The submodule will never be considered modified (but will

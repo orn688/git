@@ -200,26 +200,34 @@ int register_all_submodule_odb_as_alternates(void)
 	return ret;
 }
 
-void set_diffopt_flags_from_submodule_config(struct diff_options *diffopt,
-					     const char *path)
+int get_submodule_ignore(const char *path, const char **ignore)
 {
+	char *key;
 	const struct submodule *submodule = submodule_from_path(the_repository,
 								null_oid(),
 								path);
-	if (submodule) {
-		const char *ignore;
-		char *key;
+	if (!submodule)
+		return 1;
 
-		key = xstrfmt("submodule.%s.ignore", submodule->name);
-		if (repo_config_get_string_tmp(the_repository, key, &ignore))
-			ignore = submodule->ignore;
-		free(key);
+	key = xstrfmt("submodule.%s.ignore", submodule->name);
+	if (repo_config_get_string_tmp(the_repository, key, ignore))
+		*ignore = submodule->ignore;
+	free(key);
+	return 0;
+}
 
-		if (ignore)
-			handle_ignore_submodules_arg(diffopt, ignore);
-		else if (is_gitmodules_unmerged(the_repository->index))
-			diffopt->flags.ignore_submodules = 1;
-	}
+
+void set_diffopt_flags_from_submodule_config(struct diff_options *diffopt,
+					     const char *path)
+{
+	const char *ignore;
+	if (get_submodule_ignore(path, &ignore))
+		return;
+
+	if (ignore)
+		handle_ignore_submodules_arg(diffopt, ignore);
+	else if (is_gitmodules_unmerged(the_repository->index))
+		diffopt->flags.ignore_submodules = 1;
 }
 
 /* Cheap function that only determines if we're interested in submodules at all */

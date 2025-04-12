@@ -106,3 +106,9 @@ submodule.alternateErrorStrategy::
 	`ignore`, `info`, `die`. Default is `die`. Note that if set to `ignore`
 	or `info`, and if there is an error with the computed alternate, the
 	clone proceeds as if no alternate was specified.
+
+submodule.noAddIgnored::
+	Specifies whether `git add` should respect the `submodule.<name>.ignore>
+	values. If true, `git add` will not stage any submodules that have
+	`ignore` set to something besides "none".
+	Defaults to false.

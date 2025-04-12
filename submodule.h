@@ -51,6 +51,7 @@ int is_staging_gitmodules_ok(struct index_state *istate);
 int update_path_in_gitmodules(const char *oldpath, const char *newpath);
 int remove_path_from_gitmodules(const char *path);
 void stage_updated_gitmodules(struct index_state *istate);
+int get_submodule_ignore(const char *path, const char **ignore);
 void set_diffopt_flags_from_submodule_config(struct diff_options *,
 					     const char *path);
 int git_default_submodule_config(const char *var, const char *value, void *cb);

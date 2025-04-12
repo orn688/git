@@ -695,6 +695,15 @@ test_expect_success 'gracefully add/reset submodule with a trailing slash' '
 
 '
 
+test_expect_success 'do not add ignored submodules when submodule.noAddIgnored is set' '
+	git config --file .gitmodules submodule.example.ignore all &&
+	git config submodule.noAddIgnored true &&
+	git -C init commit --allow-empty -m "New commit" &&
+	git add init &&
+	git status --short init >status &&
+	test_must_be_empty status
+'
+
 test_expect_success 'ls-files gracefully handles trailing slash' '
 
 	test "init" = "$(git ls-files init/)"

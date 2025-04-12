@@ -39,6 +39,7 @@
 #include "trace2.h"
 #include "varint.h"
 #include "split-index.h"
+#include "submodule.h"
 #include "symlinks.h"
 #include "utf8.h"
 #include "fsmonitor.h"
@@ -708,6 +709,8 @@ int add_to_index(struct index_state *istate, const char *path, struct stat *st, 
 			  (intent_only ? ADD_CACHE_NEW_ONLY : 0));
 	unsigned hash_flags = pretend ? 0 : HASH_WRITE_OBJECT;
 	struct object_id oid;
+	int no_add_ignored_submodules;
+	const char *submodule_ignore;
 
 	if (flags & ADD_CACHE_RENORMALIZE)
 		hash_flags |= HASH_RENORMALIZE;
@@ -742,6 +745,16 @@ int add_to_index(struct index_state *istate, const char *path, struct stat *st, 
 
 		ent = (0 <= pos) ? istate->cache[pos] : NULL;
 		ce->ce_mode = ce_mode_from_stat(ent, st_mode);
+	}
+
+	if (S_ISGITLINK(ce->ce_mode) &&
+	    !git_config_get_bool("submodule.noAddIgnored",
+				 &no_add_ignored_submodules) &&
+	    no_add_ignored_submodules &&
+	    !get_submodule_ignore(path, &submodule_ignore) &&
+	    submodule_ignore &&
+	    strcmp(submodule_ignore, "none")) {
+		return 0;
 	}
 
 	/* When core.ignorecase=true, determine if a directory of the same name but differing
